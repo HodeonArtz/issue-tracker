@@ -18,8 +18,8 @@ const NavBar = () => {
         <FaBug />
       </Link>
       <ul className="flex gap-6">
-        {links.map((link) => (
-          <li>
+        {links.map((link, i) => (
+          <li key={i}>
             <Link
               className={classNames({
                 "text-zinc-900": link.href === currentPath,
