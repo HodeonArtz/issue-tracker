@@ -27,6 +27,16 @@ const NewIssuePage = () => {
   const [error, setError] = useState("");
   const [description, setDescription] = useState("");
 
+  const onSubmit = handleSubmit(async (data) => {
+    try {
+      await axios.post("/api/issues", data);
+      router.push("/issues");
+    } catch (error) {
+      console.log(error);
+      setError(`An unexpected error ocurred`);
+    }
+  });
+
   useEffect(() => {
     register("description");
   }, [register]);
@@ -38,19 +48,7 @@ const NewIssuePage = () => {
           <Callout.Text>{error}</Callout.Text>
         </Callout.Root>
       )}
-      <form
-        className=" space-y-3"
-        onSubmit={handleSubmit(async (data) => {
-          try {
-            await axios.post("/api/issues", data);
-            router.push("/issues");
-          } catch (error) {
-            console.log(error);
-            setError(`An unexpected error ocurred`);
-          }
-        })}
-        data-color-mode="light"
-      >
+      <form className=" space-y-3" onSubmit={onSubmit} data-color-mode="light">
         <TextField.Root
           placeholder="Title*"
           {...register("title")}
