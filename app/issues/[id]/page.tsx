@@ -2,6 +2,7 @@ import IssueStatusBadge from "@/app/components/IssueStatusBadge";
 import prisma from "@/prisma/client";
 import { Card, Flex, Heading, Text } from "@radix-ui/themes";
 import { notFound } from "next/navigation";
+import MarkdownPreview from "react-markdown";
 
 interface Props {
   params: Promise<{
@@ -29,8 +30,8 @@ const IssueDetailPage = async (props: Props) => {
         <Text>{issue.createdAt.toUTCString()}</Text>
       </Flex>
 
-      <Card>
-        <Text>{issue.description}</Text>
+      <Card className="prose pt-4">
+        <MarkdownPreview>{issue.description}</MarkdownPreview>
       </Card>
     </Flex>
   );
