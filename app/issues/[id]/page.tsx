@@ -1,14 +1,19 @@
+import IssueStatusBadge from "@/app/components/IssueStatusBadge";
 import prisma from "@/prisma/client";
+import { Card, Flex, Heading, Text } from "@radix-ui/themes";
 import { notFound } from "next/navigation";
 
 interface Props {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
-const IssueDetailPage = async ({ params }: Props) => {
-  if (typeof params.id !== "number") notFound();
+const IssueDetailPage = async (props: Props) => {
+  const params = await props.params;
+
+  // If introduce id is not a number
+  if (!+params.id) notFound();
 
   const issue = await prisma.issue.findUnique({
     where: { id: parseInt(params.id) },
@@ -16,12 +21,18 @@ const IssueDetailPage = async ({ params }: Props) => {
   if (!issue) notFound();
 
   return (
-    <div>
-      <p>{issue.title}</p>
-      <p>{issue.description}</p>
-      <p>{issue.status}</p>
-      <p>{issue.createdAt.toUTCString()}</p>
-    </div>
+    <Flex direction="column" gap="0.5rem">
+      <Heading>{issue.title}</Heading>
+
+      <Flex align="center" gap="1rem" className="mb-4">
+        <IssueStatusBadge status={issue.status} />
+        <Text>{issue.createdAt.toUTCString()}</Text>
+      </Flex>
+
+      <Card>
+        <Text>{issue.description}</Text>
+      </Card>
+    </Flex>
   );
 };
 
