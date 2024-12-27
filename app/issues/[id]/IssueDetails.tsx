@@ -13,7 +13,7 @@ const IssueDetails = ({ issue }: { issue: Issue }) => {
         <Text>{issue.createdAt.toUTCString()}</Text>
       </Flex>
 
-      <Card className="prose pt-4">
+      <Card className="prose max-w-full pt-4">
         <MarkdownPreview>{issue.description}</MarkdownPreview>
       </Card>
     </>
