@@ -3,7 +3,7 @@
 import { ErrorMessage } from "@/app/components";
 import { issueSchema } from "@/app/validationSchemas";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Issue } from "@prisma/client";
+import { Issue /* , Status  */ } from "@prisma/client";
 import { Button, Callout, Spinner, TextField } from "@radix-ui/themes";
 import MDEditor from "@uiw/react-md-editor";
 import axios from "axios";
@@ -14,6 +14,12 @@ import { z } from "zod";
 
 type IssueFormData = z.infer<typeof issueSchema>;
 
+/* const statusMap: Record<Status, { label: string }> = {
+  OPEN: { label: "Open" },
+  IN_PROGRESS: { label: "In Progress" },
+  CLOSED: { label: "Closed" },
+}; */
+
 const IssueForm = ({ issue }: { issue?: Issue }) => {
   const router = useRouter();
   const {
@@ -22,6 +28,9 @@ const IssueForm = ({ issue }: { issue?: Issue }) => {
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<IssueFormData>({
+    defaultValues: {
+      description: issue?.description,
+    },
     resolver: zodResolver(issueSchema),
   });
 
@@ -30,8 +39,10 @@ const IssueForm = ({ issue }: { issue?: Issue }) => {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      await axios.post("/api/issues", data);
+      if (issue) await axios.patch(`/api/issues/${issue.id}`, data);
+      else await axios.post("/api/issues", data);
       router.push("/issues");
+      router.refresh();
     } catch (error) {
       console.log(error);
       setError(`An unexpected error ocurred`);
@@ -67,8 +78,10 @@ const IssueForm = ({ issue }: { issue?: Issue }) => {
 
         <ErrorMessage>{errors.description?.message}</ErrorMessage>
 
+        {/* Implement select */}
+
         <Button disabled={isSubmitting}>
-          Submit New Issue {isSubmitting && <Spinner />}
+          {issue ? "Edit" : "Submit New"} Issue {isSubmitting && <Spinner />}
         </Button>
       </form>
     </div>
