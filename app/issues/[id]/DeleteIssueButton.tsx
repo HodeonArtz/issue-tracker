@@ -1,6 +1,6 @@
 "use client";
 import { CrossCircledIcon } from "@radix-ui/react-icons";
-import { AlertDialog, Button, Flex } from "@radix-ui/themes";
+import { AlertDialog, Button, Flex, Spinner } from "@radix-ui/themes";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -8,14 +8,17 @@ import { useState } from "react";
 const DeleteIssueButton = ({ issueId }: { issueId: number }) => {
   const router = useRouter();
   const [error, setError] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const deleteIssue = async () => {
     try {
+      setIsDeleting(true);
       await axios.delete(`/api/issues/${issueId}`);
       router.push("/issues");
       router.refresh();
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
+      setIsDeleting(false);
       setError(true);
     }
   };
@@ -24,8 +27,9 @@ const DeleteIssueButton = ({ issueId }: { issueId: number }) => {
     <>
       <AlertDialog.Root>
         <AlertDialog.Trigger>
-          <Button color="red" className="cursor-pointer">
-            <CrossCircledIcon />
+          <Button color="red" className="cursor-pointer" disabled={isDeleting}>
+            {!isDeleting && <CrossCircledIcon />}
+            {isDeleting && <Spinner />}
             Delete issue
           </Button>
         </AlertDialog.Trigger>
