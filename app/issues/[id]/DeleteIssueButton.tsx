@@ -1,8 +1,6 @@
 "use client";
 import { CrossCircledIcon } from "@radix-ui/react-icons";
 import { AlertDialog, Button, Flex } from "@radix-ui/themes";
-import Link from "next/link";
-import React from "react";
 
 const DeleteIssueButton = ({ issueId }: { issueId: number }) => {
   return (
