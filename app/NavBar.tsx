@@ -11,6 +11,7 @@ import {
   Container,
   DropdownMenu,
   Flex,
+  Skeleton,
   Text,
 } from "@radix-ui/themes";
 
@@ -36,7 +37,7 @@ export default NavBar;
 
 const AuthStatus = () => {
   const { status, data: session } = useSession();
-  if (status === "loading") return null;
+  if (status === "loading") return <Skeleton width="3rem" />;
   if (status === "unauthenticated")
     return (
       <Link className="nav-link" href="/api/auth/signin">
