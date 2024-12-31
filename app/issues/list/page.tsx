@@ -1,9 +1,9 @@
 import Pagination from "@/app/components/Pagination";
 import prisma from "@/prisma/client";
-import { Issue, Status } from "@prisma/client";
+import { Status } from "@prisma/client";
+import { Flex } from "@radix-ui/themes";
 import IssueActions from "./IssueActions";
 import IssueTable, { columnNames, IssueQuery } from "./IssueTable";
-import { Flex } from "@radix-ui/themes";
 
 const IssuesPage = async ({ searchParams }: { searchParams: IssueQuery }) => {
   const statuses = Object.values(Status);
