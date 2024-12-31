@@ -1,17 +1,11 @@
-import prisma from "@/prisma/client";
-import { Table } from "@radix-ui/themes";
-import { IssueStatusBadge, Link } from "../../components";
-import IssueActions from "./IssueActions";
-import { Issue, Status } from "@prisma/client";
-import NextLink from "next/link";
-import { ArrowUpIcon } from "@radix-ui/react-icons";
 import Pagination from "@/app/components/Pagination";
+import prisma from "@/prisma/client";
+import { Issue, Status } from "@prisma/client";
+import IssueActions from "./IssueActions";
+import IssueTable, { columnNames, IssueQuery } from "./IssueTable";
+import { Flex } from "@radix-ui/themes";
 
-const IssuesPage = async ({
-  searchParams,
-}: {
-  searchParams: { status: Status; orderBy: keyof Issue; page: string };
-}) => {
+const IssuesPage = async ({ searchParams }: { searchParams: IssueQuery }) => {
   const statuses = Object.values(Status);
   const awaitedSearchParams = await searchParams;
   const { status: awaitedStatus } = await searchParams;
@@ -19,27 +13,11 @@ const IssuesPage = async ({
 
   const where = { status };
 
-  const columns: {
-    label: string;
-    value: keyof Issue;
-    className?: "hidden md:table-cell";
-  }[] = [
-    { label: "Issue", value: "title" },
-    { label: "Status", value: "status", className: "hidden md:table-cell" },
-    {
-      label: "Created at",
-      value: "createdAt",
-      className: "hidden md:table-cell",
-    },
-  ];
-
-  const orderBy = columns
-    .map((column) => column.value)
-    .includes(awaitedSearchParams.orderBy)
+  const orderBy = columnNames.includes(awaitedSearchParams.orderBy)
     ? { [awaitedSearchParams.orderBy]: "asc" }
     : undefined;
 
-  const page = +searchParams.page || 1;
+  const page = +awaitedSearchParams.page || 1;
   const pageSize = 10;
 
   const issues = await prisma.issue.findMany({
@@ -52,53 +30,15 @@ const IssuesPage = async ({
   const issueCount = await prisma.issue.count({ where });
 
   return (
-    <div>
+    <Flex direction="column" gap="3">
       <IssueActions />
-      <Table.Root variant="surface">
-        <Table.Header>
-          <Table.Row>
-            {columns.map((column) => (
-              <Table.ColumnHeaderCell
-                key={column.value}
-                className={column.className}
-              >
-                <NextLink
-                  href={{
-                    query: { ...awaitedSearchParams, orderBy: column.value },
-                  }}
-                >
-                  {column.label}
-                </NextLink>
-                {column.value === awaitedSearchParams.orderBy && (
-                  <ArrowUpIcon className="inline" />
-                )}
-              </Table.ColumnHeaderCell>
-            ))}
-          </Table.Row>
-        </Table.Header>
-        <Table.Body>
-          {issues.map((issue) => (
-            <Table.Row key={issue.id}>
-              <Table.Cell>
-                <Link href={`/issues/${issue.id}`}>{issue.title}</Link>
-                <div className="block md:hidden">{issue.status}</div>
-              </Table.Cell>
-              <Table.Cell className="hidden md:table-cell">
-                <IssueStatusBadge status={issue.status} />
-              </Table.Cell>
-              <Table.Cell className="hidden md:table-cell">
-                {issue.createdAt.toDateString()}
-              </Table.Cell>
-            </Table.Row>
-          ))}
-        </Table.Body>
-      </Table.Root>
+      <IssueTable searchParams={awaitedSearchParams} issues={issues} />
       <Pagination
         pageSize={pageSize}
         currentPage={page}
         itemCount={issueCount}
       />
-    </div>
+    </Flex>
   );
 };
 export const dynamic = "force-dynamic";
